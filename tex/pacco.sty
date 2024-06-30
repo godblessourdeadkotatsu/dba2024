@@ -13,12 +13,6 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage[colorlinks=true, allcolors=black!60!yellow]{hyperref}
 \usepackage{lipsum} 
-\usepackage[
-backend=biber,
-style=alphabetic,
-sorting=ynt
-]{biblatex}
-\addbibresource{biblio.bib}
 \usepackage[shortlabels]{enumitem}
 \usepackage{amsthm}   
 \usepackage{array}
@@ -402,5 +396,10 @@ sorting=ynt
 									\newcommand{\mFt}{\mathcal{F}_t}
 		
 									\pretitle{\begin{center}\LARGE\color{RedViolet}}
-										\posttitle{\par\end{center}\vskip 0.5em}
-									
+						\usepackage[
+						backend=biber,
+						style=alphabetic,
+						sorting=ynt
+						]{biblatex}
+						\addbibresource{biblio.bib}				\posttitle{\par\end{center}\vskip 0.5em}
+						

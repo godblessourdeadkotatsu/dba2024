@@ -23,8 +23,36 @@ Original index (binary) &000 &001 &010 &011 &100 &101 &110 &111\\
 Final index (binary) &000 &100 &010 &110 &001 &101 &110 &111\\
 \hline
 \end{tabular}\end{center}
-We can see that the final index is the \textit{bit-reversed}\footnote{\cite{introalgo}, p.939} version of the original index: that is, to obtain the final index we must reverse the order of the bits that express the original index.
-ahah
+We can see that the final index is the \textit{bit-reversed}\footnote{\cite{introalgo} p. 913} version of the original index: that is, to obtain the final index we must reverse the order of the bits that express the original index.
+\begin{minted}[mathescape,
+	linenos,
+	numbersep=5pt,
+	frame=single,
+	breaklines,
+	numbersep=5pt,
+	xleftmargin=0pt,
+	]{python}
+def reverse(num, size):
+result = 0
+for _ in range(size): #shift result to the left bitwise and add the least significant bit to result
+result = (result << 1) + (num & 1)
+num >>= 1 #shift original number to the right bitwise (until none bits are left)
+return result
 
+def bit_reversed_order(lst):
+n = len(lst)
+#bit reversal depends on the size of the integer: for each index we need a number of bits equal to the number of bits used to represent the highest index
+bit_size = n.bit_length() - 1 #using int class bit_length method
+
+#note that the previous method for calculating the bit size only works because we expect the input to be a power of 2 and in binary powers of 2 are the numbers for which the number of bit needed for representation increases by 1. 
+# If our input wasn't strictly in powers of 2 this method wouldn't be correct (for example, if n=5 then we would get a bit size of 2, which are too few to represent the number 4).
+
+res = [0 for i in range(n)]
+for i in range(n):
+reversed_index = reverse(i, bit_size)
+res[reversed_index] = lst[i]
+
+return res
+\end{minted}
 \end{document}
 
