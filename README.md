@@ -1,9 +1,6 @@
 # dba2024
 
-QUESTA REPO CONTIENE LA MIA VOLONTÀ DI PORRE FINE ALLA MIA VITA
-
-
-
+REPO PER IL MIO BEL PROGETTO DI ALGORITMI
 
  _(`-')    (`-')  _           (`-')  _ 
 ( (OO ).-> (OO ).-/           ( OO).-/ 
