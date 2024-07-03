@@ -1,7 +1,15 @@
 # dba2024
 
-QUESTA REPO CONTIENE LA MIA VOLONTÀ DI PORRE FINE ALLA MIA VITA
+REPO PER IL MIO BEL PROGETTO DI ALGORITMI
 
 
-Invero! 
-Per l'appunto!
+
+ _(`-')    (`-')  _           (`-')  _ 
+( (OO ).-> (OO ).-/           ( OO).-/ 
+ \    .'_  / ,---.     <-.--.(,------. 
+ '`'-..__) | \ /`.\  (`-'| ,| |  .---' 
+ |  |  ' | '-'|_.' | (OO |(_|(|  '--.  
+ |  |  / :(|  .-.  |,--. |  | |  .--'  
+ |  '-'  / |  | |  ||  '-'  / |  `---. 
+ `------'  `--' `--' `-----'  `------' 
+
