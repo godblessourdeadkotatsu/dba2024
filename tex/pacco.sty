@@ -11,7 +11,7 @@
 \usepackage{amsmath,amssymb,bbm}
 \usepackage{graphicx}
 \usepackage[dvipsnames]{xcolor}
-\usepackage[colorlinks=true, allcolors=black!60!yellow]{hyperref}
+\usepackage[colorlinks=true, allcolors=black!80!red]{hyperref}
 \usepackage{lipsum} 
 \usepackage[shortlabels]{enumitem}
 \usepackage{amsthm}   
@@ -356,7 +356,7 @@
 									\renewcommand{\labelitemiii}{$\textcolor{RedViolet}{\diamond}$}
 									\renewcommand{\labelitemiv}{$\textcolor{RedViolet}{\ast}$}
 									
-									\newcommand{\enf}[1]{\textcolor{RedViolet}{\textbf{#1}}} %enf sta per enfasi
+									\newcommand{\enf}[1]{\textcolor{black!80!red}{\textbf{#1}}} %enf sta per enfasi
 									\newcommand{\sott}[1]{\setulcolor{black!20!Goldenrod}\ul{#1}}
 									\newcommand{\prob}{\mathbb{P}}
 									\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
@@ -402,8 +402,8 @@
 									\pretitle{\begin{center}\LARGE\color{RedViolet}}
 						\usepackage[
 						backend=biber,
-						style=alphabetic,
-						sorting=ynt
+						style=authoryear,
+						sorting=nyt
 						]{biblatex}
 						\addbibresource{biblio.bib}				\posttitle{\par\end{center}\vskip 0.5em}
 						
