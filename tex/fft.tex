@@ -3,7 +3,6 @@
 \begin{document}
 \section{The Fast Fourier Transform}
 \subsection{Theoretical framework}
-\subsubsection{The Fourier Transform}
 The Fourier integral is defined\footnote{\cite{FFTbook}, p.9} as
 \begin{equation}\label{ft}
 F(\omega)=\int_{-\infty}^{\infty}f(x)e^{-i2\pi\omega x}\dif x.
@@ -91,18 +90,21 @@ $$W_4=e^{-i\frac{2\pi}{4}}=-i.$$ This corresponds to the 4 unitary roots in the 
 			ymin=-1.2,
 			ymax=1.2,
 			axis equal,
-			ytick={1,-1},
-			xtick={1,-1},
-			yticklabels={$i$,$-i$},
+			ytick=\empty,
+			xtick=\empty,
 			axis lines=middle,
 			xlabel=Re($z$),
 			ylabel=Im($z$),
 			disabledatascaling]
 			\draw[black,ultra thick] (0,0) circle [radius=1];
 			\node[circle,fill,inner sep=2pt,label=below right:$W_4^3$] at (0,1) {};
-			\node[circle,fill,inner sep=2pt,label=left:$W_4^0$] at (1,0) {};
+			\node[circle,fill,inner sep=2pt,label=below left:$W_4^0$] at (1,0) {};
 			\node[circle,fill,inner sep=2pt,label=above left:$W_4^1$] at (0,-1) {};
-			\node[circle,fill,inner sep=2pt,label=right:$W_4^2$] at (-1,0) {};
+			\node[circle,fill,inner sep=2pt,label=above right:$W_4^2$] at (-1,0) {};
+			\node[circle,fill,inner sep=2pt,label=below left:$i$] at (0,1) {};
+			\node[circle,fill,inner sep=2pt,label=above left:$1$] at (1,0) {};
+			\node[circle,fill,inner sep=2pt,label=above right:$-i$] at (0,-1) {};
+			\node[circle,fill,inner sep=2pt,label=below right:$-1$] at (-1,0) {};
 		\end{axis}
 	\end{tikzpicture}
 \end{figure}
@@ -138,10 +140,61 @@ $$
 \end{bmatrix}.
 $$
 \end{example}
-
+\subsection{Direct Fourier Transform}
 From this "direct" DFT calculation we can see how, further than the matrix multiplication, we must calculate $N\times N$ twiddle factors, which is a $\mathcal{O}(N^2)$ complexity operation. \par
-We can then devise a python code that calculates the DFT of a vector with this "direct" approach.
+So, the pseudocode for such an operation would be:
+\begin{algorithm}[H]
+	\caption{Direct DFT}\label{dirdft}
+	\begin{algorithmic}[1]
+		\Function{directDFT}{x}
+		\State	$N\gets \text{length}(x)$
+		%\State $n\gets \text{list of integers from 0 to }N-1$
+		\State $k\gets \text{vertical vector of numbers from 0 to }N-1$
+		\State $M\gets \text{empty }N\times N\text{ matrix}$
+		\For{$j=1,\ldots,N$}
+		\For{$k=1,\ldots,N$}
+		\State $M_{jk}=e^{-i\frac{2\pi}{N}kj}$
+		\EndFor
+		\EndFor
+		\For{$i=1,\ldots,N$}
+		\For{$j=1,\ldots,N$}
+		\State $\text{add }M_{ij}\cdot x_j\text{ to } X_i$
+		\EndFor
+		\EndFor
+		\State return $X$
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm} 
+	Let's analyze the complexity of this algorithm step by step for an input of size $N$. Everu line is followed by its computational cost and how many times the computation has been executed.
+\begin{complexity}
+			\begin{algorithmic}[]
+				\State	$N\gets \text{length}(x)$ \Comment $c_1\times 1$
+					\State $k\gets \text{vertical vector from 0 to }N-1$  \Comment $c_2\times N$
+				\State $M\gets \text{empty }N\times N\text{ matrix}$  \Comment $c_3\times N^2$
+				\For{$j=1,\ldots,N$}  \Comment $c_4\times N$
+				\For{$k=1,\ldots,N$} \Comment $c_5\times N^2$
+				\State $M_{jk}=e^{-i\frac{2\pi}{N}kj}$  \Comment $c_6\times 1$
+				\EndFor
+				\EndFor
+				\For{$i=1,\ldots,N$}  \Comment $c_7\times N$
+				\For{$j=1,\ldots,N$} \Comment $c_8\times N^2$
+				\State $\text{add }M_{ij}\cdot x_j\text{ to } X_i$  \Comment $c_9\times 1$
+				\EndFor
+				\EndFor
+				\State return $X$  \Comment $c_{10}\times 1$
+			\end{algorithmic}
+	This means that our running time will be:
+	\begin{align*}
+		T(n)&=c_1+Nc_2+N^2c_3+Nc_4+N^2c_5+c_6+Nc_7+N^2c_8+c_9+c_{10}\\
+		&=(c_1+c_6+c_9+c_{10})+N(c_2+c_4+c_7)+N^2(c_3,c_5,c_8)\\
+		&=a+Nb+N^2c=\Theta(N^2)
+	\end{align*}
+\end{complexity}
+As we can see, the running time is quadratic in the input. This is potentially a great drawback on this algorithm, since signals in input are often very large in size.
+
+We can now devise a python code that calculates the DFT of a vector with this "direct" approach. 
 \begin{py}
+	import numpy as np
 	def direct_dft(x):
 	#number of numbers in input
 	N = len(x)
@@ -154,19 +207,112 @@ We can then devise a python code that calculates the DFT of a vector with this "
 	M = [[0 for col in range(N)] for row in range(N)] 
 	#proceed to populate the twiddle factor matrix
 	for i in range(N):
-	for j in range(N):
-	M[i][j]=np.exp(-2j*np.pi*i*j/N)
-	
+		for j in range(N):
+		M[i][j]=np.exp(-2j*np.pi*i*j/N)
+		
 	#initialize result vector
 	res = [0 for item in range(N)]
 	#perform "reduced" matrix multiplication (since we know the second matrix is Nx1)
 	for i in range (N):
-	for j in range(N):
-	res[i] += M[i][j] * x[j]
+		for j in range(N):
+		res[i] += M[i][j] * x[j]
 	return res
 \end{py}
+Since we have already loaded the \verb*|numpy| package, we can also think about an implementation that takes advantage of \verb*|numpy|'s optimized\footcite{numpy} matricial operations. This implementation should reduce the overall running time (but without diminishing the aymptotic complexity of the algorithm).
+\begin{py}
+	def np_dft(x):
+	#transform the input in a np.array tpe
+	x = np.asarray(x, dtype=float) 
+	#obtain the number of samples (dimension of the array)
+	N = x.shape[0]
+	#create a sequence of integers from 0 to N-1
+	n = np.arange(N)
+	#reshape the sequence in a vertical array
+	k = n.reshape((N, 1)) 
+	#create and populate the 4x4 twiddle factor matrix
+	M = np.exp(-2j * np.pi * k * n / N)
+	#perform a matrix multiplication between the twiddle factor matrix and the input
+	return np.dot(M, x)
+\end{py}
+At this point, we are left with the crucial problem of finding a better alternative to compute the DFT of a sequence of numbers. The (groundbreaking) answer to this problem is the \enf{Fast Fourier transform}.
+\subsection{The Fast Fourier Transform}
+\subsubsection{A quick historical overview}
+The Fast Fourier Transform (or FFT)has been cited\footcite[][22]{bestalgos} among the \textit{"top 10 algorithm of the 20th century"} and is without any doubt one of the most ubiquitous algorithms in our everyday lives. From digital signal processiong to telecommunications to pattern recognition it has made feasible a wide number of applications of the DFT that would have otherwise been out of the computational reach.\par
+The history of the FFT is as interesting as the algorithm itself: it was initally discovered by Carl Friedrich Gauss\footcite[][15]{gauss} as a marginal note of his "Theoria Interpolationis Methodo
+Nova Tractata" (1777-1855). More specifically, it was devised by Gauss as a method to speed up the tedious calculations associated to the interpolation of asteroidal orbits. Gauss' discovery, written in a posthumous titanic dissertation written in neo-latin, was not object of particular interest until the second half of the 20th century. Other version of the FFT were published by statistician Frank Yates in 1937\footcite[][3]{family}, relatively to the Hadmard and Walsh transforms in statistical design and analysis of experiments, and by Danielson and Lancros\footnote{ibidem} in the field of x-ray crystallography. The different regions of science where this algorithm has been independently conceived are a further testimony of the sheer importance of DFT and its consequent necessity for an efficient calculations.\par
+It wasn't until James Williams Cooley and John Tukey's 1965 paper "An algorithm for the machine calculation of complex Fourier series\footcite{cooleytukey}" that this algorithm gained momentum and started spreading. The story narrates\footcite[][4]{family} that Tukey was in a meeting with the Science Advisory Committee of President Kennedy when he had the intuition of the proof. The meeting was about detecting whether the Soviet Union was performing nuclear tests, in light of the proposal of a bi-lateral nuclear test ban. Needing a method to detect nuclear explosions without being physically on the site, the meeting revolved around the possibility of using data produced by seismometers and acoustic detections of submarines, but both of these method would have required performing (often by hand) the DFT of long and complex sequences of data: this would have meant that analyzing one single source could have taken months of calculations. \\Tukey scribbled down his idea for an efficient way to perform the DFT and showed it to another partecipant of the meeting, Richard Garwin of IBM. Garwin immediately realized the potential of that algorithm and tured to Cooley, a fellow IBM employee, to devise an implementation of this algorithm. Cooley was told by Garwin, who couldn't reveal the Government's agenda, that the algorithm would have found use in cristallography. Cooley had other projects going on and was initally reluctant to take on the implementation of the algorithm, but in the end he accepted to code the program. Cooley and Tukey prepared a short paper that, thanks to Garwin's intense effort, was published almost immediately and quickly gained notoriety. \\
+The timing of the algorithm coincided with a great leap forward of the development of analog-to-digital converters (ADC) capable of producing digitized samples of a time-varying voltage at rates of 300,000
+samples/second: while these provided unimagined quantities of material to work on, the FFT algorithm provided the tool to do so; and so a digital revolution in its own terms was initiated.\\
+The effects of the FFT were grounbreaking\footcite[][5]{family}. Among the many applications we found: 
+\begin{itemize}
+	\item fast convolution algorithm, which allows fast large integer and polynomial multiplications;
+	\item filtering algorithms;
+	\item frequency-domain operations;
+	\item mp3 codec, allowing real-time audio streaming (actualizing Cooley's dream\footnote{ibidem} of a digital processing unit-based radio);
+	\item spectral methods for the solving of partial differential equations;
+	\item cosine and sine transforma.
+\end{itemize}
+FFT was so big that it even slowed down other fileds of research, by trying to mold every problem into a FFT problem. As Rockmore says,
+\begin{displayquote}
+	"The FFT provided scientists with a big analytic hammer,
+	and for many, the world suddenly looked as though it was full of nails – even if this wasn’t always so."
+\end{displayquote}
+Another interesting aspect of this story is why the FFT algorithm wasn't patented by IBM but was, instead, released in the public domain. There were different reasons for that. First of all, Tukey was not an IBM employee so there was the risk that the patent wouldn't be granted: putting the algorithm into public domain would have prevented anyone else from patenting it. Secondly, since FFT was an algorithm thought for high-density data, IBM tought that it would have increased the demand for high-end computers (like IBM mainframes). The main line of thinking back then was that the real profits were to be made in the hardware rather than the software.
+\subsubsection{The algorithm}
+The basic idea behing the FFT starts from the basic observation that many twiddle factors of the direct calculations are up to a multiplicative constant. Let's observe the calculations in our example of a DFT for $N=4$.
+\begin{align*}
+	&X_0=x_0+x_1+x_2+x_3\\
+	&X_1=x_0-ix_1-x_2+x_3\\
+	&X_2=x_0-x_1-x_2-x_3\\
+	&X_3=x_0+ix_1-x_2-ix_3.\\
+\end{align*}
+We can rewrite this expression as
+\begin{align*}
+	&X_0=(x_0+x_2)+(x_1+x_3)\\
+	&X_1=(x_0-x_2)-i(x_1-x_3)\\
+	&X_2=(x_0+x_2)-(x_1+x_3)\\
+	&X_3=(x_0-x_2)+i(x_1-x_3).\\
+\end{align*}
 
-\subsection{A possible step further: Iterative Fast Fourier Transform Algorithm}
+We can already catch on some patterns: we note that the even and odd elements of the transformed sequence $X_n$ are respectively composed by the same pairs of numbers with the same twiddle factors and only differ for the sign in between the two pairs of numbers. If we could somehow pre-compute the common factors we could in theory save a relevant number of complex multiply-adds.\\
+We now introduce the following diagram for the complex multiply-add:
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[circuit ee IEC,x=3cm,y=2cm,semithick,
+		every info/.style={font=\footnotesize},
+		small circuit symbols,
+		set resistor graphic=var resistor IEC graphic,
+		set diode graphic=var diode IEC graphic,
+		set make contact graphic= var make contact IEC graphic]
+		 \node [contact] at (0,1) {};
+\end{tikzpicture}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsubsection{A possible variation: Iterative Fast Fourier Transform Algorithm}
 If we could arrange from the start the input components in a order that resembles the one reached by the deepest level of recursion (that is, when $N=1$), we could create a non-recursive approach for the FFT algorithm that works "bottom up". The idea behind this algorithm is the following:
 \begin{enumerate}
 \item we store in an array $A[0,\ldots,n-1]$ in the order in which they appear in the leaves of the recursion tree;
@@ -188,7 +334,7 @@ Original index (binary) &000 &001 &010 &011 &100 &101 &110 &111\\
 Final index (binary) &000 &100 &010 &110 &001 &101 &011 &111\\
 \hline
 \end{tabular}\end{center}
-We can see that the final index is the \textit{bit-reversed}\footnote{\cite{introalgo} p. 913} version of the original index: that is, to obtain the final index we must reverse the order of the bits that express the original index.
+We can see that the final index is the \textit{bit-reversed}\footnote{\cite{introalgo} p. 913} version of the original index: that is, to obtain the final index we must reverse the order of the bits that express the original index
 \begin{py}
 def reverse(num, size):
 result = 0

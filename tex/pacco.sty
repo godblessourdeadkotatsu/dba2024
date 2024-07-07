@@ -19,17 +19,22 @@
 \usepackage{pdfpages}
 \usepackage{minted}
 \usepackage{standalone}
+\usepackage{microtype}
+\usepackage{csquotes}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage[makeroom]{cancel}
 \usepackage[many]{tcolorbox}
 \tcbuselibrary{skins,raster,theorems}
 \usepackage{mathtools}
 \usepackage{soul}
+\usepackage{multicol}
 \usepackage[scr=rsfso,cal=zapfc,frak=euler,bb=ams]{mathalfa}
 \usepackage{sectsty,titling}
 \usepackage{float}
 
 \usepackage{tikz}
-\usetikzlibrary{shapes,arrows,positioning,patterns,arrows.meta, bending, shadings,intersections,decorations}
+\usetikzlibrary{shapes,arrows,positioning,patterns,arrows.meta, bending, shadings,intersections,decorations,circuits.ee.IEC}
 \usepackage{pgfplots,pgfplotstable}
 \pgfplotsset{compat=1.16}
 \usepgfplotslibrary{fillbetween}
@@ -250,22 +255,20 @@
 						
 						\newcounter{algor}
 						%now making the proposition
-						\newtcbtheorem{algo}{Algorithm}{
+						\newtcbtheorem{algo}{Complexity analysis}{
 							enhanced, 
 							breakable,
 							interior style={left color=gray!30,right color=white!29},
-							frame style={left color=gray!30,right color=gray!80},
 							title style={left color=gray!30,right color=gray!80},
 							colframe=white, coltitle=black, colbacktitle=Dandelion!60,
-							colback=RedViolet,
-							drop fuzzy shadow=gray,
+							colback=red!80!black,
 							titlerule=0mm,
 							separator sign={:},
 							description formatter=\newline,
 							theorem hanging indent/.try=0pt,
 						}{}
 						
-						\newenvironment{algorithm}[1][]{
+						\newenvironment{complexity}[1][]{
 							{\par\addvspace{\baselineskip}\noindent\ignorespaces}
 							{\ignorespacesafterend} 
 							\hfill   
