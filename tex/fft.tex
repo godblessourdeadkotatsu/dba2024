@@ -278,15 +278,43 @@ We can already catch on some patterns: we note that the even and odd elements of
 We now introduce the following diagram for the complex multiply-add:
 \begin{figure}[H]
 	\centering
-	\begin{tikzpicture}[circuit ee IEC,x=3cm,y=2cm,semithick,
-		every info/.style={font=\footnotesize},
-		small circuit symbols,
+	\begin{tikzpicture}[circuit ee IEC,x=2cm,y=1cm,semithick,
+		every info/.style={font=\small},
 		set resistor graphic=var resistor IEC graphic,
 		set diode graphic=var diode IEC graphic,
 		set make contact graphic= var make contact IEC graphic]
-		 \node [contact] at (0,1) {};
+		\node [contact,label=left:$p$] (p) at (0,0){};
+		\node [contact,label=right:$p+\alpha q$] (res) at (1,0){};
+		\node [contact,label=left:$q$] (q) [below of=p]{};
+		\path (q)edge[current direction={pos=.5,info sloped={[above=0.3 pt]:$\alpha$}}](res);
+		\path (p)edge(res);
 \end{tikzpicture}
 \end{figure}
+We can then represent our 4-points DFT as:
+\begin{diagram}
+	\node [contact,label=left:$x_0$](x0)at (0,0){};
+	\node [contact,label=left:$x_2$](x1)at (0,-1){};
+	\node [contact,label=left:$x_1$](x2)at (0,-2){};
+	\node [contact,label=left:$x_3$](x3)at (0,-3){};
+	\node [contact,label=right:$x_0+x_2$](int0)at (1,0){};
+	\node [contact,label=right:$x_0-x_2$](int1)at (1,-1){};
+	\node [contact,label=right:$x_1+x_3$](int2)at (1,-2){};
+	\node [contact,label=right:$x_1-x_3$](int3)at (1,-3){};
+	\node [contact](res0)[right=40 pt of int0]{};
+	\node [contact](res1)[right=40 pt of int1]{};
+	\node [contact](res2)[right=40 pt of int2]{};
+	\node [contact](res3)[right=40 pt of int3]{};
+	\node [contact,label=right:$X_0$](fin0)[right=2 cm of res0]{};
+	\node [contact,label=right:$X_1$](fin1)[right=2 cm of res1]{};
+	\node [contact,label=right:$X_2$](fin2)[right=2 cm of res2]{};
+	\node [contact,label=right:$X_3$](fin3)[right=2 cm of res3]{};
+	\path (x0)edge(int0);
+	\path (x0)edge(int1);
+	\path (x2)edge(int2);
+	\path (x2)edge(int3);
+	\path (res0)edge(fin0);
+	\path (res0)edge(fin2);
+\end{diagram}
 
 
 
