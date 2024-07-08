@@ -290,32 +290,52 @@ We now introduce the following diagram for the complex multiply-add:
 		\path (p)edge(res);
 \end{tikzpicture}
 \end{figure}
+The double multiply-add for a factor with same absolute value and opposite sign is commonly referred in FFT literature\footcite{practice} as \enf{butterfly operation} and its graphical representation is shown below.
+\begin{figure}[H]
+	\centering
+	\input{tikz/butterfly}
+\end{figure}
 We can then represent our 4-points DFT as:
-\begin{diagram}
-	\node [contact,label=left:$x_0$](x0)at (0,0){};
-	\node [contact,label=left:$x_2$](x1)at (0,-1){};
-	\node [contact,label=left:$x_1$](x2)at (0,-2){};
-	\node [contact,label=left:$x_3$](x3)at (0,-3){};
-	\node [contact,label=right:$x_0+x_2$](int0)at (1,0){};
-	\node [contact,label=right:$x_0-x_2$](int1)at (1,-1){};
-	\node [contact,label=right:$x_1+x_3$](int2)at (1,-2){};
-	\node [contact,label=right:$x_1-x_3$](int3)at (1,-3){};
-	\node [contact](res0)[right=40 pt of int0]{};
-	\node [contact](res1)[right=40 pt of int1]{};
-	\node [contact](res2)[right=40 pt of int2]{};
-	\node [contact](res3)[right=40 pt of int3]{};
-	\node [contact,label=right:$X_0$](fin0)[right=2 cm of res0]{};
-	\node [contact,label=right:$X_1$](fin1)[right=2 cm of res1]{};
-	\node [contact,label=right:$X_2$](fin2)[right=2 cm of res2]{};
-	\node [contact,label=right:$X_3$](fin3)[right=2 cm of res3]{};
-	\path (x0)edge(int0);
-	\path (x0)edge(int1);
-	\path (x2)edge(int2);
-	\path (x2)edge(int3);
-	\path (res0)edge(fin0);
-	\path (res0)edge(fin2);
-\end{diagram}
-
+\begin{figure}[H]
+	\centering
+	\input{tikz/diagram2}
+\end{figure}
+From this diagram we can see how the problem transforms into a combination of the inputs multiplied by different factors each time. Moreover, we can see how the problem starts by dividing the inputs in 2 couples, combining them and then combining their respective outputs in the final solution.
+This approach is inspired by the natural symmetries that arise when computing DFT. Consider the DFT formula for the $k$-th transformed element
+\[	X_k =\sum_{n=0}^{N-1}x_ne^{-i\frac{2\pi}{N}kn}.\]
+By decomposing the sum in two parts we get that
+\begin{align}
+	X_k &=\sum_{n=0}^{\frac{N}{2}-1}x_{2n}e^{-i\frac{2\pi}{N}k(2n)}+\sum_{n=0}^{\frac{N}{2}-1}x_{2n+1}e^{-i\frac{2\pi}{N}k(2n+1)}\nonumber\\
+	&=\underbrace{\sum_{n=0}^{\frac{N}{2}-1}x_{2n}e^{-i\frac{2\pi}{\frac{N}{2}}kn}}_{\mathclap{\text{DFT of even indices of }x_n}}+e^{-i\frac{2\pi}{N}k}\cdot\underbrace{\sum_{n=0}^{\frac{N}{2}-1}x_{2n+1}e^{-i\frac{2\pi}{\frac{N}{2}}kn}}_{\mathclap{\text{DFT of odd indices of }x_n}}\nonumber\\
+	&=\text{evenFFT}_k+e^{-i\frac{2\pi}{N}k}\cdot \text{oddFFT}_k\label{evenodd}.
+\end{align}
+So the DFT of $x_n$ can be basically expressed as a combination of a DFT performed on the members of the input sequence with even indices and a DFT of the members of the input sequence with odd indices. Moreover, consider the formula for the $\left(k+\frac{N}{2}\right)$-th element.
+\begin{align*}
+X_{k+\frac{N}{2}}&=\sum_{n=0}^{N-1}x_ne^{-i\frac{2\pi}{N}\left(k+\frac{N}{2}\right)n}\nonumber\\ &=\sum_{n=0}^{\frac{N}{2}-1}x_{2n}e^{-i\frac{2\pi}{\frac{N}{2}}(k+\frac{N}{2})n}+e^{-i\frac{2\pi}{N}(k+\frac{N}{2})}\cdot\sum_{n=0}^{\frac{N}{2}-1}x_{2n+1}e^{-i\frac{2\pi}{\frac{N}{2}}(k+\frac{N}{2})n}\nonumber\\
+&=\sum_{n=0}^{\frac{N}{2}-1}x_{2n}e^{-i\frac{2\pi}{\frac{N}{2}}kn}e^{-2i\pi n}+e^{-i\frac{2\pi}{N}k}e^{-i\pi}\cdot\sum_{n=0}^{\frac{N}{2}-1}x_{2n+1}e^{-i\frac{2\pi}{\frac{N}{2}}kn}e^{-2i\pi n}.
+\end{align*}
+By Euler's formula, we know that 
+\begin{align*}
+	&e^{-2i\pi n}=1\\
+	&e^{-i\pi}=-1
+\end{align*}
+So, by substituting we obtain:
+\begin{align}
+X_{k+\frac{N}{2}} &=\sum_{n=0}^{\frac{N}{2}-1}x_{2n}e^{-i\frac{2\pi}{\frac{N}{2}}kn}-e^{-i\frac{2\pi}{N}k}\cdot\sum_{n=0}^{\frac{N}{2}-1}x_{2n+1}e^{-i\frac{2\pi}{\frac{N}{2}}kn} \nonumber\\
+&=\text{evenFFT}_k-e^{-i\frac{2\pi}{N}k}\cdot \text{oddFFT}_k\label{evenodd2}.
+\end{align}
+We can see how Eq.\ref{evenodd2} yields the same result of Eq. \ref{evenodd} with only the inverse sign on the twiddle factor. This shows the correlation between the $k$-th transformed element and the $\left(k+\frac{N}{2}\right)$-th transformed element: we can basically compute both of them at the cost of only one (as shown in the 4 points DFT diagram). But to compute them, we need to compute $\text{evenFFT}_k$ and $\text{oddFFT}_k$, which are in turn FFTs: this means that \textit{if $N$ is a power of 2} we can apply the same procedure to these two "sub-FFTs" by splitting them in two and so on, until we arrive to $N$ trivial size-1 DFTs (and the DFT of a single number is the number itself). We can then combine the "sub-DFTs" into groups of $2,4,8,\ldots,N$ by using butterfly operations until we obtain our desired size $N$ DFT.\par
+This idea is at the heart of the \enf{radix-2 decimation-in-time (DIT) FFT}, one of the most straightforward implementations of the FFT algorithm. The name "decimation-in-time" hints to the fact that the "decimated" sequence is the input sequence, while the "decimation-in-frequency" is a variation of the same algorithm obtained by performing the "decimation" on the output sequence. More formally\footcite[][3]{practice}, we know that a DFT of composite size $N=N_1N_2$, Eq. \ref{dft} can be rewritten by letting $n=n_1N_2+n_2$ and $k=k_1+k_2n_1$ which leads to
+\begin{equation}
+	X_{k_1+k_2n_1}=\sum_{n_2}^{N_2-1}\left[\left(\sum_{n_1=0}^{N_1-1}x_{n_1N_2+n_2}w_{N_1}^{n_1k_1}\right)w_N^{n_2k_1}\right]w_{N_2}^{n_2k_2}\qquad k{1,2}=0,\ldots,n_{1,2}-1.
+\end{equation}
+\begin{example}
+	Let's consider a size 8 DFT. By applying the first step of the FFT allgorithm we would get the following diagram:
+	\begin{figure}[H]
+		\centering
+		\input{tikz/rad28dft}
+	\end{figure}
+\end{example}
 
 
 

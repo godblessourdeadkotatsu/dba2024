@@ -1,0 +1,48 @@
+{
+    "InternalPDFViewer": {
+        "Embedded": false,
+        "File": ""
+    },
+    "Session": {
+        "Bookmarks": [
+        ],
+        "CurrentFile": "fft.tex",
+        "FileVersion": 1,
+        "Files": [
+            {
+                "Col": 29,
+                "EditorGroup": 0,
+                "FileName": "main.tex",
+                "FirstLine": 0,
+                "FoldedLines": "",
+                "Line": 8
+            },
+            {
+                "Col": 0,
+                "EditorGroup": 0,
+                "FileName": "biblio.bib",
+                "FirstLine": 0,
+                "FoldedLines": "",
+                "Line": 0
+            },
+            {
+                "Col": 16,
+                "EditorGroup": 0,
+                "FileName": "pacco.sty",
+                "FirstLine": 382,
+                "FoldedLines": "",
+                "Line": 412
+            },
+            {
+                "Col": 90,
+                "EditorGroup": 0,
+                "FileName": "fft.tex",
+                "FirstLine": 279,
+                "FoldedLines": "",
+                "Line": 292
+            }
+        ],
+        "MasterFile": "",
+        "VerticalSplit": true
+    }
+}

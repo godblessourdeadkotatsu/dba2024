@@ -235,24 +235,27 @@
 						theorem hanging indent/.try=0pt,
 					}{}
 					
-					\newenvironment{proof2}[1][]{
-						\stepcounter{proofcount}
-						\stepcounter{dummy}
+					\newenvironment{diagram}[1][]{
 						\ifstrempty{#1}
 						{%   
-							\hfill
-							\begin{prova*}{}{}%        
-								\pushQED{\qed}
+								\begin{tikzpicture}[circuit ee IEC,x=2cm,y=0.8cm,semithick,
+									every info/.style={font=\small},
+									set resistor graphic=var resistor IEC graphic,
+									set diode graphic=var diode IEC graphic,
+									set make contact graphic= var make contact IEC graphic]
 							}{%        
-								\hfill
-								\begin{prova*}{}{}          \pushQED{\qed}  
+									\begin{tikzpicture}[circuit ee IEC,x=2cm,y=0.8cm,semithick,
+										every info/.style={font=\small},
+										set resistor graphic=var resistor IEC graphic,
+										set diode graphic=var diode IEC graphic,
+										set make contact graphic= var make contact IEC graphic]  
 								}%
 							}{
-								\qedhere
-								\popQED
-							\end{prova*}% 
+							\end{tikzpicture}
 						}
 						
+			
+							
 						\newcounter{algor}
 						%now making the proposition
 						\newtcbtheorem{algo}{Complexity analysis}{
@@ -407,6 +410,5 @@
 						backend=biber,
 						style=authoryear,
 						sorting=nyt
-						]{biblatex}
-						\addbibresource{biblio.bib}				\posttitle{\par\end{center}\vskip 0.5em}
+						]{biblatex}			\posttitle{\par\end{center}\vskip 0.5em}
 						
