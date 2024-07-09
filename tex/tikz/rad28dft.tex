@@ -13,28 +13,28 @@
 					(\tikzlastnode.north \side) edge[draw=none, line to]
 					coordinate[pos=(\i-.5)/(#1)] (\tikzlastnode-\i-\side) (\tikzlastnode.south \side)
 	}}}}]
-	\node[box=4] (box-t) {$N/2$ \\\\ DFT};
-	\node[box=4, below=of box-t] (box-b) {$N/2$ \\\\ DFT};
+	\node[box=4] (box-t) {size 4\\\ evenDFT};
+	\node[box=4, below=of box-t] (box-b) {size 4\\\ oddDFT};
 	
 	\foreach \s[count=\i] in {0,2,6,8}
 	\path (box-t-\i-west) edge node[at end, left]{$x_{\s}$} ++(left:.5);
 	\foreach \s[count=\i] in {1,3,5,7}
 	\path (box-b-\i-west) edge node[at end, left]{$x_{\s}$} ++(left:.5);
 	
-	\foreach \b/\s[count=\k] in {t/e, b/o}
+	\foreach \b/\s[count=\k] in {t/\text{even}, b/\text{odd}}
 	\foreach \i[evaluate={\j=int(\i-1)},
 	evaluate={\J=int(ifthenelse(\k==2,\j+4,\j))}] in {1,...,4}
 	\node [contact] (conn-\b-\i) at ([shift=(right:1.5)] box-\b-\i-east) {}
-	edge node[above] {$X_{\s\j}$} (box-\b-\i-east)
+	edge node[above] {$X_{\j}^{\s}$} (box-\b-\i-east)
 	node [contact, label=right:{$X_{\J}$}] (conn-\b-\i') at ([shift=(right:5)] box-\b-\i-east) {};
 	
 	\begin{scope}[every info/.append style={font=\scriptsize, inner sep=+.5pt}]
 		
 		\foreach \i[evaluate={\j=int(\i-1)},evaluate={\J=int(\i+3)}] in {1,...,4}
-		\path (conn-t-\i) edge[current direction={pos=.27, info=$i$}] (conn-t-\i')
-		edge[current direction={pos=.1, info=$i$}] (conn-b-\i')
-		(conn-b-\i) edge[current direction={pos=.87, info={$w_8^\J$}}] (conn-b-\i')
-		edge[current direction={pos=.9, info={$w_8^\j$}}] (conn-t-\i');
+		\path (conn-t-\i) edge (conn-t-\i')
+		edge (conn-b-\i')
+		(conn-b-\i) edge[current direction={pos=.87, info={$W_8^\J$}}] (conn-b-\i')
+		edge[current direction={pos=.9, info={$W_8^\j$}}] (conn-t-\i');
 	\end{scope}
 \end{tikzpicture}
 \end{document}

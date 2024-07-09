@@ -10,7 +10,7 @@
 % Useful packages
 \usepackage{amsmath,amssymb,bbm}
 \usepackage{graphicx}
-\usepackage[dvipsnames]{xcolor}
+\usepackage[dvipsnames,table]{xcolor}
 \usepackage[colorlinks=true, allcolors=black!80!red]{hyperref}
 \usepackage{lipsum} 
 \usepackage[shortlabels]{enumitem}
@@ -21,6 +21,7 @@
 \usepackage{standalone}
 \usepackage{microtype}
 \usepackage{csquotes}
+\usepackage{forest}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage[makeroom]{cancel}
@@ -29,12 +30,15 @@
 \usepackage{mathtools}
 \usepackage{soul}
 \usepackage{multicol}
+\usepackage{caption}
+\usepackage{wrapfig}
+
 \usepackage[scr=rsfso,cal=zapfc,frak=euler,bb=ams]{mathalfa}
 \usepackage{sectsty,titling}
 \usepackage{float}
 
 \usepackage{tikz}
-\usetikzlibrary{shapes,arrows,positioning,patterns,arrows.meta, bending, shadings,intersections,decorations,circuits.ee.IEC}
+\usetikzlibrary{shapes,arrows,positioning,patterns,arrows.meta, bending, shadings,intersections,decorations,fit,backgrounds,circuits.ee.IEC}
 \usepackage{pgfplots,pgfplotstable}
 \pgfplotsset{compat=1.16}
 \usepgfplotslibrary{fillbetween}
@@ -261,9 +265,9 @@
 						\newtcbtheorem{algo}{Complexity analysis}{
 							enhanced, 
 							breakable,
-							interior style={left color=gray!30,right color=white!29},
-							title style={left color=gray!30,right color=gray!80},
-							colframe=white, coltitle=black, colbacktitle=Dandelion!60,
+							interior style={left color=red!30,right color=white!29},
+							title style={left color=red!30,right color=red!80},
+							colframe=white, coltitle=black, colbacktitle=red!60,
 							colback=red!80!black,
 							titlerule=0mm,
 							separator sign={:},
@@ -357,7 +361,7 @@
 									
 									
 									
-									\renewcommand{\labelitemi}{$\textcolor{RedViolet}{\bullet}$}
+									\renewcommand{\labelitemi}{$\textcolor{red!80!black}{\bullet}$}
 									\renewcommand{\labelitemii}{$\textcolor{RedViolet}{\cdot}$}
 									\renewcommand{\labelitemiii}{$\textcolor{RedViolet}{\diamond}$}
 									\renewcommand{\labelitemiv}{$\textcolor{RedViolet}{\ast}$}
@@ -405,7 +409,7 @@
 									\newcommand{\BMF}{\left((B_t)_{t\geq 0},\mathcal{F}_t \right)}
 									\newcommand{\mFt}{\mathcal{F}_t}
 		
-									\pretitle{\begin{center}\LARGE\color{RedViolet}}
+									\pretitle{\begin{center}\LARGE\color{red!80!black}}
 						\usepackage[
 						backend=biber,
 						style=authoryear,

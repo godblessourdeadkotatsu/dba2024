@@ -257,9 +257,9 @@ FFT was so big that it even slowed down other fileds of research, by trying to m
 	"The FFT provided scientists with a big analytic hammer,
 	and for many, the world suddenly looked as though it was full of nails – even if this wasn’t always so."
 \end{displayquote}
-Another interesting aspect of this story is why the FFT algorithm wasn't patented by IBM but was, instead, released in the public domain. There were different reasons for that. First of all, Tukey was not an IBM employee so there was the risk that the patent wouldn't be granted: putting the algorithm into public domain would have prevented anyone else from patenting it. Secondly, since FFT was an algorithm thought for high-density data, IBM tought that it would have increased the demand for high-end computers (like IBM mainframes). The main line of thinking back then was that the real profits were to be made in the hardware rather than the software.
+Another interesting aspect of this story is why the FFT algorithm wasn't patented by IBM but, instead, released in the public domain. First of all, Tukey was not an IBM employee so there was the risk that the patent wouldn't be granted: putting the algorithm into public domain would have prevented anyone else from patenting it. Secondly, since FFT was an algorithm thought for high-density data, IBM thought that it would have increased the demand for high-end computers (like IBM mainframes). The main line of thinking back then was that the real profits were to be made in the hardware rather than the software.
 \subsubsection{The algorithm}
-The basic idea behing the FFT starts from the basic observation that many twiddle factors of the direct calculations are up to a multiplicative constant. Let's observe the calculations in our example of a DFT for $N=4$.
+The basic idea behind the FFT starts from the basic observation that many twiddle factors of the direct calculations are up to a multiplicative constant. Let's observe the calculations in our example of a DFT for $N=4$.
 \begin{align*}
 	&X_0=x_0+x_1+x_2+x_3\\
 	&X_1=x_0-ix_1-x_2+x_3\\
@@ -330,37 +330,133 @@ This idea is at the heart of the \enf{radix-2 decimation-in-time (DIT) FFT}, one
 	X_{k_1+k_2n_1}=\sum_{n_2}^{N_2-1}\left[\left(\sum_{n_1=0}^{N_1-1}x_{n_1N_2+n_2}w_{N_1}^{n_1k_1}\right)w_N^{n_2k_1}\right]w_{N_2}^{n_2k_2}\qquad k{1,2}=0,\ldots,n_{1,2}-1.
 \end{equation}
 \begin{example}
-	Let's consider a size 8 DFT. By applying the first step of the FFT allgorithm we would get the following diagram:
+	Let's consider a size 8 DFT. By applying the first step of the FFT allgorithm, we should divide the input into even and odd indices After that, would get the following situation:
 	\begin{figure}[H]
 		\centering
 		\input{tikz/rad28dft}
 	\end{figure}
+	The two "boxes" output 4 numbers each, to be combined using the twiddle factors into the final 8 numbers.
+	Of course, we are now left with the problem of computing the even and the odd DFTs. We can again, for each one of these, apply the procedure below (which is the same situation of the size 4 DFT that we computed above):
+	\begin{figure}[H]
+		\centering
+		\input{tikz/rad48dft}
+	\end{figure}
+	And so on, for each DFT we could possibly encounter until the trivial size-1 DFT.
 \end{example}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+This suggests a recursive approach to the DFT algorithm\footcite[][911]{introalgo}, in a classic \textit{divide-and-conquer} fashion.
+\begin{algorithm}[H]
+	\caption{Radix-2 recursive FFT (Cooley-Tukey FFT)}\label{fft}
+	\begin{algorithmic}[1]
+		\Function{recursiveFFT}{x}
+		\State ensure $x$ is a power of 2
+		\State	$N\gets \text{length}(x)$
+		\If{$N==1$}
+		\State return $x$\Comment{base case}
+		\EndIf
+		\State $W_N$  $\gets e^{i\frac{2\pi}{N}}$ 
+		\State $W\gets1$
+		\State even $\gets(x_0,x_2,\ldots,x_{n-2})$ 
+		\State odd $\gets(x_1,x_3,\ldots,x_{n-1})$ 
+		\State evenfft $\gets$ \textproc{recursiveFFT}(even)
+		\State oddfft $\gets$ \textproc{recursiveFFT}(odd)
+		\For{$k=0$ to $\frac{N}{2}-1$}
+		\State $y_k\gets\text{even}_k+W\cdot\text{odd}_k$
+		\State $y_{k+\frac{N}{2}}\gets\text{evenfft}_k-W\cdot\text{oddfft}_k$
+		\State $W\gets=W\times W_N$
+		\EndFor
+		\State return $y$
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm} 
+The algorithm, after establishing the base case, sets up the values for $W_N$ to be correctly updated (in line 16): every time we "exit" a level of recursion and enter a higher level $n$-points DFT our twiddle factor will be updated accordingly (becoming a $W_n$ twiddle factor for $n=0,1,2,...,N$). Moreover, by doing this we can keep a running value of $W$ to avoid calculating it from scratch every time. Lines 14 and 16 take advantage of the symmetries of the DFT by using twice the same twiddle factor and changing the sign of the addition.\par
+We now turn to the analysis of the running time of the FFT algorithm
+\begin{complexity}
+	\begin{algorithmic}[1]
+		\Function{recursiveFFT}{x}
+		\State ensure $x$ is a power of 2 \Comment{$c_1\times 1$}
+		\State	$N\gets \text{length}(x)$\Comment{$c_2\times 1$}
+		\If{$N==1$}
+		\State return $x$\Comment{$c_3\times 1$}
+		\EndIf
+		\State $W_N$  $\gets e^{i\frac{2\pi}{N}}$ \Comment{$c_4\times 1$}
+		\State $W\gets1$\Comment{$c_5\times 1$}
+		\State even $\gets(x_0,x_2,\ldots,x_{n-2})$ \Comment{this step and the following involve iterating over the input once: $c_6\times N$}
+		\State odd $\gets(x_1,x_3,\ldots,x_{n-1})$ 
+		\State evenfft $\gets$ \textproc{recursiveFFT}(even)\Comment{recursive call of size $\frac{N}{2}$}
+		\State oddfft $\gets$ \textproc{recursiveFFT}(odd)\Comment{recursive call of size $\frac{N}{2}$}
+		\For{$k=0$ to $\frac{N}{2}-1$}\Comment{$c_7\times\frac{N}{2}$}
+		\State $y_k\gets\text{even}_k+W\cdot\text{odd}_k$\Comment{$c_8\times 1$}
+		\State $y_{k+\frac{N}{2}}\gets\text{evenfft}_k-W\cdot\text{oddfft}_k$\Comment{$c_9\times 1$}
+		\State $W\gets=W\times W_N$\Comment{$c_{10}\times 1$}
+		\EndFor
+		\State return $y$\Comment{$c_{11}\times 1$}
+		\EndFunction
+	\end{algorithmic}
+	We can try to solve the complexity of this algorithm by using a recurrence. \\ We know that if $N=1$, our DFT is trivial and our execution time will be $T(1)=\Theta(1)$. If $N>1$, we will need to:
+	\begin{itemize}
+		\item split the input array: this depends on the length of the imput array. \[\Theta(N);\]
+		\item call the function twice: we call the same function (with its running time $T(N)$) twice on an input of length $\frac{N}{2}$\[2T\left(\frac{N}{2}\right);\]
+		\item combine the results (constant time $\Theta(1)$) in a loop that runs $\frac{N}{2}$ times: this operation is linear in the input
+		\[\Theta(N;\]
+	\end{itemize}
+	Given these facts, we can accumulate the splitting and the combining in an unique $\Theta(N)$ operation and thus get the recurrence:\[T(N)=
+	\begin{cases}
+		\Theta(1)&\text{if }n=1\\
+		2T\left(\frac{N}{2}\right)+\Theta(N)&\text{if }n>1
+	\end{cases}\]
+	Since this recurrence is in the form 
+	\[T(n)=aT\left(\frac{n}{b}\right)+f(n)\]with $T(N)$ monotone and $f(n)=\Theta(n^d)$ polynomial, we can conveniently solve it by means of the \textit{Master Theorem}. We have
+	\begin{itemize}
+		\item $a=2$;
+		\item $b=2$;
+		\item base case constant $c$;
+		\item $d=1$
+	\end{itemize}
+	Since we have that\[a=2=2^1=b^d\] then according to the Master Theorem our recurrence will have asymptotic bound
+	\[\Theta(n^d \log n)=\Theta(N\log N)\]
+\end{complexity}
+We have thus proved that the FFT algorithm runs in linearithmic time, opposed to the quadratic time of the direct DFT approach. This fact is crucial for an algorithm that runs on large inputs, where the difference between quadratic and linearithmic time is enormous.\par
+This is a python implementation of the FFT algorithm.
+\begin{py}
+def recursive_FFT(x):
+	N = len(x)
+	#base case
+	if N == 1: 
+		return x
+	if N % 2 > 0:
+		raise ValueError("input length must be a power of 2")
+	#recursive call: split the input in the even/odd part and call the function again
+	even = recursive_FFT(x[::2])
+	odd =  recursive_FFT(x[1::2])
+	r = range(N//2)
+	#calculate twiddle factors multiplied for the odd part
+	oddtwiddle = [np.exp(-2j * np.pi * k / N) * odd[k] for k in r]
+	#concatenating the X_k component with the X_{k+N/2} component using list comprehension syntax
+	res = ([even[k] + oddtwiddle[k] for k in r] + [even[k] - oddtwiddle[k] for k in r])
+	return res
+\end{py}
+This implementation differs in some parts from the algorithm \ref{fft}: in particular I used the convenient list comprehension and concatenation syntax of Python to avoid explicit computations of \verb*|for| loops. This means that we can also avoid the initialization and updating of the twiddle factors proposed by [\cite{introalgo}] and directly compute them in a list.\par
+This algorithm is an implementation of radix-2: in particular, we took advantage of the list comprehension and concatenation in Python to avoid explicit loops in the  FFT where the recursion tree is traversed "depth-first", completing one subtransfrom entirely before moving on to the next, as seen in the figure below.
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\input{tikz/breadthfirst}
+		\caption*{depth-first implementation with $N=8$}
+	\end{minipage}%
+	\begin{minipage}{.5\textwidth}
+		\centering
+		\input{tikz/depthfirst}
+		\caption*{breadth-first implementation with $N=8$}
+	\end{minipage}
+\end{figure}
+This is in contrast with other non-recursive implementations that traverse the tree "breadth-first"\footcite[][4]{practice} by performing, for example, $N$ trivial size-1 DFTs, then $\frac{N}{2}$ combinations into size-2 DFTs, then $\frac{N}{4}$ combinations into size-4 transforms and so on. It is worth noting that even though the time complexity of the FFT algorithm is higly desirable, the same cannot be said for the \textit{space complexity}. The recursive FFT is a so-called \textit{out of place} algorithm which, for every recursive call, allocates a new slot of memory. Since the function is called twice in every recursion, an array of length $2^N$ has to be stored $N$ times leading to a space complexity of $\mathcal{O}(2^n\times n)$\footcite[][7]{worner}. This fact, combined to the fact that complex numbers require two double variables to be stored, leads to a significant amount of memory usage for this algorithm\footnote{as I unfortunately discovered by trying to feed 100 billion numbers into my naive FFT algorithm, to my laptop's great dismay.}. This brings us to the search for a "in-place" algorithm that overwrites the same allocated memory slot with the progressive results of the FFT.
 \subsubsection{A possible variation: Iterative Fast Fourier Transform Algorithm}
+Let's take a look again at how the input components get divided in the recursive approach.
+\begin{figure}[H]
+	\centering
+	\input{tikz/bitrev}
+\end{figure}
 If we could arrange from the start the input components in a order that resembles the one reached by the deepest level of recursion (that is, when $N=1$), we could create a non-recursive approach for the FFT algorithm that works "bottom up". The idea behind this algorithm is the following:
 \begin{enumerate}
 \item we store in an array $A[0,\ldots,n-1]$ in the order in which they appear in the leaves of the recursion tree;
@@ -370,19 +466,67 @@ If we could arrange from the start the input components in a order that resemble
 \item we write these $N/4$ size 4 DFTs in the array;
 \item we iterate the procedure untile the array holds 2 size $N/2$ DFTs, which we can combine using $N/2$ butterfly operations to obtain out final $N$ size DFT.
 \end{enumerate}
-To do this, we must firstly fill an array wtih the input component in the particular order that they appear in the leaves of the recursion graph. Let's examine the ordere in which the input components end up.\begin{center}
+Since we have to combine DFTs on every level of the tree, we must keep count of the levels ranging from 1 to $\log_2(N)$ (since this is still a radix-2 algorithm). \par Another question is to understand how to rearrange the input component to resemble the order on the levaes of the recursion tree. To do this, we firstly fill an array wtih the input component in the particular order that they appear in the leaves of the recursion graph. Let's examine the order in which the input components ends up.\begin{center}
 \begin{tabular}{|c| c c c c c c c c|}
     \hline
+    \rowcolor{red!50}
 Original index &0 &1 &2 &3 &4 &4 &6 &7\\
 \hline
+\rowcolor{red!30}
 Final index &0 &4 &2 &6 &1 &5 &2 &7\\
 \hline
+\rowcolor{red!50}
 Original index (binary) &000 &001 &010 &011 &100 &101 &110 &111\\
 \hline
+\rowcolor{red!30}
 Final index (binary) &000 &100 &010 &110 &001 &101 &011 &111\\
 \hline
 \end{tabular}\end{center}
-We can see that the final index is the \textit{bit-reversed}\footnote{\cite{introalgo} p. 913} version of the original index: that is, to obtain the final index we must reverse the order of the bits that express the original index
+We can see that the final index is the \textit{bit-reversed}\footnote{\cite{introalgo} p. 913} version of the original index: that is, to obtain the final index we must reverse the order of the bits that express the original index.\par
+Let's now turn to an algorithm for the iterative FFT\footcite[][917]{introalgo}.
+\begin{algorithm}[H]
+	\caption{Iterative FFT}\label{iterfft}
+	\begin{algorithmic}[1]
+		\Function{iterativeFFT}{x}
+		\State$x\gets$\textproc{Bit-Reverse($x$)}
+		\State$N\gets$ length($x$)
+		\For{$s=1$ \textbf{to} $\log_2(n)$}
+		\State $m\gets2^s$
+		\State $W_m\gets e^{i\frac{2\pi}{m}}$
+		\For{$k=0$ \textbf{to} $N-1$ \textbf{by} $m$}
+		\State $W\gets 1$
+		\For{$j=0$ \textbf{to} $\frac{m}{2}-1$}
+		\State $t\gets W X_{k+j+\frac{m}{2}}$
+		\State $u\gets X_{k+j}$
+		\State $X_{k+j}\gets u+t$
+		\State $X_{k+j+\frac{m}{2}}\gets u-t$
+		\State $W\gets W\cdot W_M$
+		\EndFor
+		\EndFor
+		\EndFor
+		\State return $X$
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+What about the bit reversal? The algorithm is very simple\footcite[][918]{introalgo}, even though we will see that implementation in Python can be a bit more tricky, involving bitwise operations.
+\begin{algorithm}[H]
+	\caption{Bit-Reversal}\label{bitrev}
+	\begin{algorithmic}[1]
+		\Function{Bit-Reverse}{x}
+		\State $N\gets\text{length}(x)$
+		\For{$k=0$ \textbf{to} $N-1$}
+		\State $X_{\text{reversed}(l)}\gets x_k$
+		\EndFor
+		\State return $X$
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+Let's turn, once again, to complexity analysis.
+\begin{complexity}
+	\begin{itemize}\item \textbf{Bit reversal function:} this function runs in $\Theta(N \log N)$ time, since the loop runs $N$ times to reverser an integer between $0$ and $N-1$ with  $\log N$ bits.
+		\item \textbf{Iterative FFT function:} 
+	\end{itemize}
+\end{complexity}
 \begin{py}
 def reverse(num, size):
 result = 0
