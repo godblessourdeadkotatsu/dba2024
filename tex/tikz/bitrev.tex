@@ -1,0 +1,23 @@
+\documentclass[border={1 1 30 30}]{standalone}
+\usepackage{../pacco}
+\begin{document}
+	\begin{forest}
+		for tree={draw, rectangle, rounded corners, top color=red!40,bottom color=white!20, l sep+=0.5em, where level={3}{s sep+=1em}{}, inner sep=0.5em}
+		[{$x_0,x_1,x_2,x_3,x_4,x_5,x_6,x_7$}, name=a
+		[{$x_0,x_2,x_4,x_6$},name=c
+		[{$x_0,x_4$},name=e
+		[{$x_0$}]
+		[{$x_4$}]]
+		[{$x_2,x_6$},name=b
+		[{$x_2$}]
+		[{$x_6$}]]
+		]
+		[{$x_1,x_3,x_5,x_7$},name=g
+		[{$x_1,x_3$},name=d
+		[$x_1$][$x_3$]]
+		[{$x_5,x_7$},name=f
+		[$x_5$][$x_7$]]
+		]
+		]
+	\end{forest}
+\end{document}

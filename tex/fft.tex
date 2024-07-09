@@ -1,3 +1,4 @@
+% !TeX spellcheck = en_US
 \documentclass[class=article,crop=false]{standalone}
 \usepackage{pacco}
 \begin{document}
@@ -508,6 +509,7 @@ Let's now turn to an algorithm for the iterative FFT\footcite[][917]{introalgo}.
 		\EndFunction
 	\end{algorithmic}
 \end{algorithm}
+We can see in lines 12 and 13 the usual butterfly operation, with $t$ being the oddDFT multiplied by the twiddle factor.
 What about the bit reversal? The algorithm is very simple\footcite[][918]{introalgo}, even though we will see that implementation in Python can be a bit more tricky, involving bitwise operations.
 \begin{algorithm}[H]
 	\caption{Bit-Reversal}\label{bitrev}
@@ -525,31 +527,94 @@ Let's turn, once again, to complexity analysis.
 \begin{complexity}
 	\begin{itemize}\item \textbf{Bit reversal function:} this function runs in $\Theta(N \log N)$ time, since the loop runs $N$ times to reverser an integer between $0$ and $N-1$ with  $\log N$ bits.
 		\item \textbf{Iterative FFT function:} 
-	\end{itemize}
+	\end{itemize}\begin{algorithmic}[1]
+	\Function{iterativeFFT}{x}
+	\State$x\gets$\textproc{Bit-Reverse($x$)} \Comment{$\Theta(N\log N$)}
+	\State$N\gets$ length($x$)\Comment{$c_2\times 1$}
+	\For{$s=1$ \textbf{to} $\log_2(n)$}\Comment{$c_3\times \log_2(N)$}
+	\State $m\gets2^s$\Comment{$c_3\times 1$}
+	\State $W_m\gets e^{i\frac{2\pi}{m}}$\Comment{$c_4\times 1$}
+	\For{$k=0$ \textbf{to} $N-1$ \textbf{by} $m$}\Comment{$c_5\times \sum_{s=1}^{\log_2(N)}\frac{N}{2^s}$}
+	\State $W\gets 1$\Comment{$c_6\times 1$}
+	\For{$j=0$ \textbf{to} $\frac{m}{2}-1$}\Comment{$c_7\times\sum_{s=1}^{\log_2(N)}2^{s-1}$}
+	\State $t\gets W X_{k+j+\frac{m}{2}}$\Comment{$c_{8}\times 1$}
+	\State $u\gets X_{k+j}$\Comment{$c_{9}\times 1$}
+	\State $X_{k+j}\gets u+t$\Comment{$c_{10}\times 1$}
+	\State $X_{k+j+\frac{m}{2}}\gets u-t$\Comment{$c_{11}\times 1$}
+	\State $W\gets W\cdot W_M$\Comment{$c_{12}\times 1$}
+	\EndFor
+	\EndFor
+	\EndFor
+	\State return $X$\Comment{$c_{13}\times 1$}
+	\EndFunction
+	\end{algorithmic}
+	Here we need to think about the three nested loops and how they behave for each iteration of the outer loop. We know that for each $s$:
+	\begin{enumerate}
+		\item the middle loop runs $\frac{N}{2^s}$ times;
+		\item the inner loop runs $2^{s-1}$ times each middle loop.
+	\end{enumerate}
+	So for each iteration of the outer loop we will have (discarding constant operations)
+	\[\frac{N}{2^s}\times2^{s-1}=\frac{N}{2}\text{ operations.}\]
+	The outer loop runs $\log_2(N)$ times, so in total our number of operations (without considering constant operations) will be $\frac{N}{2}\times\log_2(N)$, which is linearithmic in $N$. As we saw, \textproc{Bit-Reverse} runs in linearithmic time as well: since our final complexity is the sum of two linearithmic procedures our iterative FFT algorithm will run in 
+	\[\Theta(N\log N)\text{ time,}\]
+	just like the recursive version.
 \end{complexity}
+We now devise an implementation of the bit reverse function in Python. We will need to create two different functions, one that does the actual bit reversal and one that creates the reversed list. There is a caveat given by the fact that the previous method for calculating the bit size only works because we expect the input to be a power of 2 and in binary powers of 2 are the numbers for which the number of bit needed for representation increases by 1. If our input wasn't strictly in powers of 2 this method wouldn't be correct (for example, if $N=5$ then we would get a bit size of 2, which are too few to represent the number 4).
 \begin{py}
 def reverse(num, size):
-result = 0
-for _ in range(size): #shift result to the left bitwise and add the least significant bit to result
-result = (result << 1) + (num & 1)
-num >>= 1 #shift original number to the right bitwise (until none bits are left)
-return result
+	result = 0
+	for i in range(size): #shift result to the left bitwise and add the least significant bit to result
+		result = (result << 1) + (num & 1)
+		num >>= 1 #shift original number to the right bitwise (until none bits are left)
+	return result
 
 def bit_reversed_order(lst):
-n = len(lst)
-#bit reversal depends on the size of the integer: for each index we need a number of bits equal to the number of bits used to represent the highest index
-bit_size = n.bit_length() - 1 #using int class bit_length method
-
-#note that the previous method for calculating the bit size only works because we expect the input to be a power of 2 and in binary powers of 2 are the numbers for which the number of bit needed for representation increases by 1. 
-# If our input wasn't strictly in powers of 2 this method wouldn't be correct (for example, if n=5 then we would get a bit size of 2, which are too few to represent the number 4).
-
-res = [0 for i in range(n)]
-for i in range(n):
-reversed_index = reverse(i, bit_size)
-res[reversed_index] = lst[i]
-
-return res
+	n = len(lst)
+	#bit reversal depends on the size of the integer: for each index we need a number of bits equal to the number of bits used to represent the highest index
+	bit_size = n.bit_length() - 1 #using int class bit_length method
+	
+	res = [0 for i in range(n)]
+	for i in range(n):
+		reversed_index = reverse(i, bit_size)
+		res[reversed_index] = lst[i]
+	
+	return res
 \end{py}
-
+We then create a Python function to calculate the iterative FFT of a given sequence of numbers.
+\begin{py}
+	def iterative_FFT(x):
+	#store the array in bit reversed order
+	revx=bit_reversal(x)
+	n=len(revx)
+	
+	#this first loop iterates through the levels of the tree
+	for i in range(1,int(math.log2(n))+1):
+		#these operations ensure that the correct twiddle factor is created for each level.
+		#for example, the first DFTs are, as we said before, size-2 dfts so the exponent of the twiddle factors will need to be divided by two... and so on.
+		m=2**i
+		twiddle_m=np.exp(2j*np.pi/m) 
+		
+		#for each level of the tree we go through the corresponding groups of inputs
+		#for example, at the first level we go two by two (our DFTS are of size 2), at the second level we go four by four (our DFTs are of size 4)... and so on.
+			for k in range(0,n,m):
+			twiddle_single=1 #create the base twiddle factor for the lowest level butterfly operation
+			
+			#this last loop iterates through the single items of each of the groups of two/four/eight...N/2 input components
+			for l in range(0,m//2):
+				t = twiddle_single*revx[k+l+m//2] #butterfly operation
+				u = revx[k+l]
+				revx[k+l]=u+t #write the k-th transformed element
+				revx[k+l+m//2]=u-t #write its sibling (k+n/2)-th transformed element.
+				twiddle_single=twiddle_single*twiddle_m #update the twiddle factor
+	return revx
+\end{py}
+This implementation is a straightforward derivation of algorithm \ref{iterfft}.
+\subsection{Other variations on the theme of FFT}
+FFT's importance and applications encouraged a long history of variations, tweaking and improvements.\par
+One of the main constraint of this radix-2 algorithm is that the size of $N$ is expected to be a power of 2. Some FFT algorithms, like \enf{Rader's algorithm\footcite{rader} or \enf{Bluestein's algorithm\footcite{bluestein}}}, allow to perform the FFT of an input of prime size, by rewriting the DFT as a cyclic convolution. \\Another important field of development of the FFT is the application in \enf{group representation theory}\footcite[][7]{family}, where it can be used to efficiently computing the expansion in the basis of the irreducible matrix element of a cyclic group of length $N$.\\
+Among the many optimizations of FFT it is worth mentioning the \enf{FFTW}, or \textit{fastest Fourier Transform in the West}\footcite{FFTW}: this C library (with GPL license!) is highly flexible in its applications and consists in a mix of iterative and recursive FFT\footcite[][7-10]{practice}. It also supports other transformations like the discrete cosine transform (DCT) and can generate code for parallel computing.\\
+FFT also points to the future of quantum computing\footcite[][7]{family}: Shor's quantum algorithm for prime factorization presents a subroutine that computes the DFT of a binary vector representing an integer with a Cooley-Tukey procedure for efficient calculations. In general, the \enf{quantum Fourier Transform (QFT)} is an extremely studied field in quantum computing\footnote{\cite{quantum} is an interesting on the topic of quantum transforms.}.\par
+\bigskip
+We have now examined in depth the FFT algorithm which is at the heart of frequency-domain audio processing. We are ready to turn to the implementation of a pitch-shifting algorithm via the \enf{phase vocoder}.
 \end{document}
 

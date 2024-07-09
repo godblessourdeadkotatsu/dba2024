@@ -1,0 +1,40 @@
+\documentclass[border={1 1 30 30}]{standalone}
+\usepackage{../pacco}
+\begin{document}
+	\begin{tikzpicture}[
+		thick, node distance=.5cm, circuit ee IEC,
+		box/.style={
+			draw, align=center, shape=rectangle, minimum width=1.5cm, minimum height=4cm,
+			append after command={% see also: https://tex.stackexchange.com/a/129668
+				\foreach \side in {east,west} {
+					\foreach \i in {1,...,#1} {
+						%          coordinate (\tikzlastnode-\i-\side)
+						%          at ($(\tikzlastnode.north \side)!{(\i-.5)/(#1)}!(\tikzlastnode.south \side)$)
+						(\tikzlastnode.north \side) edge[draw=none, line to]
+						coordinate[pos=(\i-.5)/(#1)] (\tikzlastnode-\i-\side) (\tikzlastnode.south \side)
+		}}}}]
+		\node[box=2] (box-t) {size 2\\\ evenDFT};
+		\node[box=2, below=of box-t] (box-b) {size 2\\\ oddDFT};
+		
+		\foreach \s[count=\i] in {0,2}
+		\path (box-t-\i-west) edge node[at end, left]{$x_{\s}$} ++(left:.5);
+		\foreach \s[count=\i] in {6,8}
+		\path (box-b-\i-west) edge node[at end, left]{$x_{\s}$} ++(left:.5);
+		
+		\foreach \b/\s[count=\k] in {t/\text{even}, b/\text{odd}}
+		\foreach \i[evaluate={\j=int(\i-1)},
+		evaluate={\J=int(ifthenelse(\k==2,\j+2,\j))}] in {1,2}
+		\node [contact] (conn-\b-\i) at ([shift=(right:1.5)] box-\b-\i-east) {}
+		edge node[above] {$X_{\j}^{\s}$} (box-\b-\i-east)
+		node [contact, label=right:{$X_{\J}$}] (conn-\b-\i') at ([shift=(right:5)] box-\b-\i-east) {};
+		
+		\begin{scope}[every info/.append style={font=\scriptsize, inner sep=+.5pt}]
+			
+			\foreach \i[evaluate={\j=int(\i-1)},evaluate={\J=int(\i+1)}] in {1,2}
+			\path (conn-t-\i) edge (conn-t-\i')
+			edge (conn-b-\i')
+			(conn-b-\i) edge[current direction={pos=.87, info={$W_4^\J$}}] (conn-b-\i')
+			edge[current direction={pos=.9, info={$W_4^\j$}}] (conn-t-\i');
+		\end{scope}
+	\end{tikzpicture}
+\end{document}

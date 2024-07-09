@@ -1,0 +1,28 @@
+\documentclass[border={1 1 30 30}]{standalone}
+\usepackage{../pacco}
+\begin{document}
+	
+	\begin{forest}
+		for tree={draw, circle, l sep+=0.5em, where level={3}{s sep+=1em}{}, inner sep=0.5em}
+		[$8$, name=a
+		[$4$,name=c
+		[$2$,name=e]
+		[$2$,name=b]
+		]
+		[$4$,name=g
+		[$2$,name=d]
+		[$2$,name=f]
+		]
+		]
+		\begin{scope}[on background layer]
+			\node [fill=red!25, fit={(a.north) (e) (f)}, inner ysep=.05em, inner xsep=.5em, outer sep=0pt] {};
+		\end{scope}
+		\begin{scope}[on background layer]
+			\node [fill=red!75!black!40, fit={(a.south) (e) (f)}, inner ysep=.05em, inner xsep=.5em, outer sep=0pt] {};
+		\end{scope}
+		\begin{scope}[on background layer]
+			\node [fill=red!25, fit={(e)(f)}, inner ysep=.05em, inner xsep=.5em, outer sep=0pt] {};
+		\end{scope}
+	\end{forest}
+	
+\end{document}
