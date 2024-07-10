@@ -1,0 +1,41 @@
+\documentclass[crop=false]{standalone}
+\usepackage{../pacco}
+
+\begin{document}
+	\begin{tikzpicture}[>=stealth']
+		
+		\draw [fill=red](0,0.5)rectangle ++(12,-0.3) node[pos=0,label=left:$x_n$,anchor=north,yshift=-2 pt] {};
+		% Window and Hop Size
+		\draw [<->] (1.5,-3) -- (4.5,-3) node [midway,fill=white,above] {\tiny Window Size};
+		\draw [<->] (1.5,-2.5) -- (3,-2.5) node [above,midway,fill=white] {\tiny Hop Size};
+		\foreach \x in {0,...,4}{
+		\draw [top color=red!40,bottom color=white!20](1.5*\x,-0.4-0.55*\x)rectangle ++(3,-0.5) node[midway]{windowed frame};
+		}
+		\foreach \x in {1.5,3,...,7.5}{
+		\draw[dotted] (\x,0.2)--(\x,-3.4);
+		}
+		\node[circle,below right] at (9.1,-2.6){$\ldots$};
+		\begin{scope}[shift={(0,-2)}]
+			\foreach \x in {0,...,4}{
+			\draw [bottom color=red!60!blue!30,top color=white!20](1.5*\x,-7+0.55*\x)rectangle ++(3,-0.5) node[midway]{windowed frame};
+		}
+			\draw [fill=red!50!blue!20](0,-8.1)rectangle ++(12,-0.3) node[pos=0,label=left:$X_n$,anchor=north,yshift=-2 pt] {};
+		\foreach \x in {1.5,3,...,7.5}{
+			\draw[dotted] (\x,-4.6)--(\x,-8.1)node[pos=.96,left]{$+$};
+		}
+		\node[circle,below right] at (9.1,-4.8){$\ldots$};
+	\end{scope}
+	\foreach \x in {1.5,3,...,7.5}{
+		\draw[->] (\x,-3.4)-- node [pos=1.3]{FFT}(\x,-4.1);
+		\draw[->] (\x,-4.45)-- node [draw,rectangle,pos=2.05]{\footnotesize processing}(\x,-4.8);
+		\begin{scope}[shift={(0,-0.35)}]
+		\draw[->] (\x,-5.15)-- node [pos=1.6]{IFFT}(\x,-5.5);
+		\draw[->] (\x,-5.9)--(\x,-6.35);
+	\end{scope}
+	}
+	%%	\draw (0,-0.4)rectangle ++(3,-0.5);
+	%	\draw (1.5,-1)rectangle ++(3,-0.5);
+
+
+	\end{tikzpicture}
+\end{document}

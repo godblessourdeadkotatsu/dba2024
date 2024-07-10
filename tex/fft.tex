@@ -9,7 +9,7 @@ The Fourier integral is defined\footnote{\cite{FFTbook}, p.9} as
 F(\omega)=\int_{-\infty}^{\infty}f(x)e^{-i2\pi\omega x}\dif x.
 \end{equation}
 If the integral exists for every value of the parameter $\omega$, then Eq.\ref{ft} defines $F(\omega)$, the \enf{Fourier Transform} of $f(x)$. In most cases\footnote{\cite{FFTbook}, \textit{ibidem}} (including the application of our discussion), $f(x)$ is a function of the variable time and $F(\omega)$ is a function of the variable frequency. In general, the Fourier Transform is a complex quantity
-\begin{equation}
+\begin{equation}\label{decomp}
 	F(\omega)=R(\omega)+iI(\omega)=|F(\omega)|e^{i\theta(\omega)}
 \end{equation}
 with;
