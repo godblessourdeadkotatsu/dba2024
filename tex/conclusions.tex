@@ -3,5 +3,6 @@
 \usepackage{pacco}
 \begin{document}
 	\section{Conclusions}
-	This brief discussion tackled the theme of pitch-shifting by a frequency-domain approach. By doing so, we examined in depth the FFT algorithm, which is at the heart of most common frequency-domain audio manipulations. We started by stating the need for an efficient algorithm to compute the discrete Fourier transform
+	This brief discussion tackled the theme of pitch-shifting by a frequency-domain approach. By doing so, we examined in depth the FFT algorithm, which is at the heart of most common frequency-domain audio manipulations. We started by stating the need for an efficient algorithm to compute the discrete Fourier transform; we then analyzed two of the most common versions of the Cooley-Tukey FFT algorithm, solving their time complexity and evaluating their pros and cons.\\
+	We then focused on the phase vocoder technique: we started by applying the FFT algorithm to the short-time Fourier transform technique, which we analyzed with particular regard to each step involved in the procedure. We then reviewed the theoretical aspects of the phase vocoder before implementing it in Python to obtain a simple pitch-shifting algorithm.
 \end{document}

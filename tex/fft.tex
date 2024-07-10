@@ -16,7 +16,7 @@ with;
 \begin{itemize}
 	\item $R(\omega)$ is the real part of the Fourier transform;
 	\item $I(\omega)$ is the imaginary part;
-	\item $|F(\omega)|$ is the \textit{amplitude} or \textit{Fourier spectrum} og $f(x)$ given by $\sqrt{R^2(\omega)+I^2(\omega)}$;
+	\item $|F(\omega)|$ is the \textit{amplitude} or \textit{Fourier spectrum} of $f(x)$ given by $\sqrt{R^2(\omega)+I^2(\omega)}$;
 	\item $\theta(\omega)$ is the \textit{phase angle of the Fourier transform} and is given by $tan^{-1}\left[\frac{I(\omega)}{R(\omega)}\right]$.
 \end{itemize}
 In the same fashion we can define the \enf{inverse Fourier transform} as:
@@ -24,7 +24,7 @@ In the same fashion we can define the \enf{inverse Fourier transform} as:
 	f(x)=\int_{-\infty}^{\infty}F(\omega)e^{i2\pi\omega x}\dif \omega.
 \end{equation}
 Eq.\ref{ivft} allows the determination of a function in the time domain from its Fourier transform. If the functions $f(x)$ and $F(\omega)$ are related by Eqs. \ref{ft} and \ref{ivft}, then the two function are called a \enf{Fourier transform pair} and are notated \[f(x)\xleftrightarrow{\text{FT}}F(\omega)\].\par
-The Fourier transform is defined on continuous functions, but since we will be dealing with sampled (and therefore continuous) quantities, we will need to turn to the discrete version fo the Fourier transform, the \enf{Discrete Fourier transform (DFT)}\footnote{\cite{FFTbook}, chap. 6.3 provides more formal details about the connection between Fourier transform and discrete Fourer transform and its derivation.}. The DFT maps a sequence $x_n$ to a sequence $X_n$ and is defined as:
+The Fourier transform is defined on continuous functions, but since we will be dealing with sampled (and therefore continuous) quantities, we will need to turn to the discrete version for the Fourier transform, the \enf{Discrete Fourier transform (DFT)}\footnote{\cite{FFTbook}, chap. 6.3 provides more formal details about the connection between Fourier transform and discrete Fourer transform and its derivation.}. The DFT maps a sequence $x_n$ to a sequence $X_n$ and is defined as:
 \begin{equation}\label{dft}
 	X_k=\sum_{k=0}^{N-1}x_ne^{-i\frac{2\pi}{N}kn}\qquad \text{for }k=0,1,2,\ldots,N-1
 \end{equation}
@@ -68,11 +68,11 @@ The DFT enjoys the following useful properties\footcite[][410]{dspprinciples}, e
 		(X_k)^*&=\sum_{n=0}^{N-1}x_ne^{+i\frac{2\pi}{N}kn}\\
 		&=X_{N-k}=X(-k).
 	\end{align*}
-	Consequenty, 
+	Consequently, 
 	\[
 	|X(N-k)|=|X(k)|\qquad\text{and}\qquad\angle X(N-k)=-\angle X(k)
 	\]
-	The fact that $X_{N-k}=(X_k)^*$ has therefore the important consequence that the real parts of $X_{N-k}$ and $X_k$ are identical, while their imaginary parts have the same maginitude but opposite signs. 
+	The fact that $X_{N-k}=(X_k)^*$ has therefore the important consequence that the real parts of $X_{N-k}$ and $X_k$ are identical, while their imaginary parts have the same magnitude but opposite signs. 
 	\item \enf{time shifting}: if $x(n)$ is shifted by the integer $m$, then
 	\[x(n-m)\xleftrightarrow[N]{\text{DFT}}X(k)e^{-i\frac{2\pi}{N}nm}.\] This means that any shifting in the time domain will affect the transformed element by an "adjusting" factor that rotates it appropriately around the complex circle.
 	\item \enf{frequency shifting}: if $X(k)$ is shifted by the integer $m$, then
@@ -114,7 +114,7 @@ $$ X_k=\sum_{n=0}^3(-i)^{kn}x_n=(-i)^{0}x_0+(-i)^{k}x_1+(-i)^{2k}x_2+(-i)^{3k}x_
 which is equal to 
 $$ x_0+(-i)^kx_1+(-1)^kx_2+i^kx_3.$$
 
-Our complete dicrete Fourier transform will then be:
+Our complete discrete Fourier transform will then be:
 \begin{align*}
 	&X_0=x_0+x_1+x_2+x_3\\
 	&X_1=x_0-ix_1-x_2+x_3\\
@@ -166,7 +166,7 @@ So, the pseudocode for such an operation would be:
 		\EndFunction
 	\end{algorithmic}
 \end{algorithm} 
-	Let's analyze the complexity of this algorithm step by step for an input of size $N$. Everu line is followed by its computational cost and how many times the computation has been executed.
+	Let's analyze the complexity of this algorithm step by step for an input of size $N$. Every line is followed by its computational cost and how many times the computation has been executed.
 \begin{complexity}
 			\begin{algorithmic}[]
 				\State	$N\gets \text{length}(x)$ \Comment $c_1\times 1$
@@ -219,7 +219,7 @@ We can now devise a python code that calculates the DFT of a vector with this "d
 		res[i] += M[i][j] * x[j]
 	return res
 \end{py}
-Since we have already loaded the \verb*|numpy| package, we can also think about an implementation that takes advantage of \verb*|numpy|'s optimized\footcite{numpy} matricial operations. This implementation should reduce the overall running time (but without diminishing the aymptotic complexity of the algorithm).
+Since we have already loaded the \verb*|numpy| package, we can also think about an implementation that takes advantage of \verb*|numpy|'s optimized\footcite{numpy} matricial operations. This implementation should reduce the overall running time (but without diminishing the asymptotic complexity of the algorithm).
 \begin{py}
 	def np_dft(x):
 	#transform the input in a np.array tpe
@@ -238,10 +238,10 @@ Since we have already loaded the \verb*|numpy| package, we can also think about 
 At this point, we are left with the crucial problem of finding a better alternative to compute the DFT of a sequence of numbers. The (groundbreaking) answer to this problem is the \enf{Fast Fourier transform}.
 \subsection{The Fast Fourier Transform}
 \subsubsection{A quick historical overview}
-The Fast Fourier Transform (or FFT)has been cited\footcite[][22]{bestalgos} among the \textit{"top 10 algorithm of the 20th century"} and is without any doubt one of the most ubiquitous algorithms in our everyday lives. From digital signal processiong to telecommunications to pattern recognition it has made feasible a wide number of applications of the DFT that would have otherwise been out of the computational reach.\par
-The history of the FFT is as interesting as the algorithm itself: it was initally discovered by Carl Friedrich Gauss\footcite[][15]{gauss} as a marginal note of his "Theoria Interpolationis Methodo
+The Fast Fourier Transform (or FFT) has been cited\footcite[][22]{bestalgos} among the \textit{"top 10 algorithms of the 20th century"} and is without any doubt one of the most ubiquitous algorithms in our everyday lives. From digital signal procession to telecommunications to pattern recognition it has made feasible a wide number of applications of the DFT that would have otherwise been out of the computational reach.\par
+The history of the FFT is as interesting as the algorithm itself: it was initially discovered by Carl Friedrich Gauss\footcite[][15]{gauss} as a marginal note of his "Theoria Interpolationis Methodo
 Nova Tractata" (1777-1855). More specifically, it was devised by Gauss as a method to speed up the tedious calculations associated to the interpolation of asteroidal orbits. Gauss' discovery, written in a posthumous titanic dissertation written in neo-latin, was not object of particular interest until the second half of the 20th century. Other version of the FFT were published by statistician Frank Yates in 1937\footcite[][3]{family}, relatively to the Hadmard and Walsh transforms in statistical design and analysis of experiments, and by Danielson and Lancros\footnote{ibidem} in the field of x-ray crystallography. The different regions of science where this algorithm has been independently conceived are a further testimony of the sheer importance of DFT and its consequent necessity for an efficient calculations.\par
-It wasn't until James Williams Cooley and John Tukey's 1965 paper "An algorithm for the machine calculation of complex Fourier series\footcite{cooleytukey}" that this algorithm gained momentum and started spreading. The story narrates\footcite[][4]{family} that Tukey was in a meeting with the Science Advisory Committee of President Kennedy when he had the intuition of the proof. The meeting was about detecting whether the Soviet Union was performing nuclear tests, in light of the proposal of a bi-lateral nuclear test ban. Needing a method to detect nuclear explosions without being physically on the site, the meeting revolved around the possibility of using data produced by seismometers and acoustic detections of submarines, but both of these method would have required performing (often by hand) the DFT of long and complex sequences of data: this would have meant that analyzing one single source could have taken months of calculations. \\Tukey scribbled down his idea for an efficient way to perform the DFT and showed it to another partecipant of the meeting, Richard Garwin of IBM. Garwin immediately realized the potential of that algorithm and tured to Cooley, a fellow IBM employee, to devise an implementation of this algorithm. Cooley was told by Garwin, who couldn't reveal the Government's agenda, that the algorithm would have found use in cristallography. Cooley had other projects going on and was initally reluctant to take on the implementation of the algorithm, but in the end he accepted to code the program. Cooley and Tukey prepared a short paper that, thanks to Garwin's intense effort, was published almost immediately and quickly gained notoriety. \\
+It wasn't until James Williams Cooley and John Tukey's 1965 paper "An algorithm for the machine calculation of complex Fourier series\footcite{cooleytukey}" that this algorithm gained momentum and started spreading. The story narrates\footcite[][4]{family} that Tukey was in a meeting with the Science Advisory Committee of President Kennedy when he had the intuition of the proof. The meeting was about detecting whether the Soviet Union was performing nuclear tests, in light of the proposal of a bi-lateral nuclear test ban. Needing a method to detect nuclear explosions without being physically on the site, the meeting revolved around the possibility of using data produced by seismometers and acoustic detections of submarines, but both of these method would have required performing (often by hand) the DFT of long and complex sequences of data: this would have meant that analyzing one single source could have taken months of calculations. \\Tukey scribbled down his idea for an efficient way to perform the DFT and showed it to another participant of the meeting, Richard Garwin of IBM. Garwin immediately realized the potential of that algorithm and turned to Cooley, a fellow IBM employee, to devise an implementation of this algorithm. Cooley was told by Garwin, who couldn't reveal the Government's agenda, that the algorithm would have found use in crystallography. Cooley had other projects going on and was initially reluctant to take on the implementation of the algorithm, but in the end he accepted to code the program. Cooley and Tukey prepared a short paper that, thanks to Garwin's intense effort, was published almost immediately and quickly gained notoriety. \\
 The timing of the algorithm coincided with a great leap forward of the development of analog-to-digital converters (ADC) capable of producing digitized samples of a time-varying voltage at rates of 300,000
 samples/second: while these provided unimagined quantities of material to work on, the FFT algorithm provided the tool to do so; and so a digital revolution in its own terms was initiated.\\
 The effects of the FFT were grounbreaking\footcite[][5]{family}. Among the many applications we found: 
@@ -251,9 +251,9 @@ The effects of the FFT were grounbreaking\footcite[][5]{family}. Among the many 
 	\item frequency-domain operations;
 	\item mp3 codec, allowing real-time audio streaming (actualizing Cooley's dream\footnote{ibidem} of a digital processing unit-based radio);
 	\item spectral methods for the solving of partial differential equations;
-	\item cosine and sine transforma.
+	\item cosine and sine transforms.
 \end{itemize}
-FFT was so big that it even slowed down other fileds of research, by trying to mold every problem into a FFT problem. As Rockmore says,
+FFT was so big that it even slowed down other fields of research, by trying to mold every problem into a FFT problem. As Rockmore says,
 \begin{displayquote}
 	"The FFT provided scientists with a big analytic hammer,
 	and for many, the world suddenly looked as though it was full of nails – even if this wasn’t always so."
@@ -331,7 +331,7 @@ This idea is at the heart of the \enf{radix-2 decimation-in-time (DIT) FFT}, one
 	X_{k_1+k_2n_1}=\sum_{n_2}^{N_2-1}\left[\left(\sum_{n_1=0}^{N_1-1}x_{n_1N_2+n_2}w_{N_1}^{n_1k_1}\right)w_N^{n_2k_1}\right]w_{N_2}^{n_2k_2}\qquad k{1,2}=0,\ldots,n_{1,2}-1.
 \end{equation}
 \begin{example}
-	Let's consider a size 8 DFT. By applying the first step of the FFT allgorithm, we should divide the input into even and odd indices After that, would get the following situation:
+	Let's consider a size 8 DFT. By applying the first step of the FFT algorithm, we should divide the input into even and odd indices After that, would get the following situation:
 	\begin{figure}[H]
 		\centering
 		\input{tikz/rad28dft}
@@ -395,7 +395,7 @@ We now turn to the analysis of the running time of the FFT algorithm
 	\end{algorithmic}
 	We can try to solve the complexity of this algorithm by using a recurrence. \\ We know that if $N=1$, our DFT is trivial and our execution time will be $T(1)=\Theta(1)$. If $N>1$, we will need to:
 	\begin{itemize}
-		\item split the input array: this depends on the length of the imput array. \[\Theta(N);\]
+		\item split the input array: this depends on the length of the input array. \[\Theta(N);\]
 		\item call the function twice: we call the same function (with its running time $T(N)$) twice on an input of length $\frac{N}{2}$\[2T\left(\frac{N}{2}\right);\]
 		\item combine the results (constant time $\Theta(1)$) in a loop that runs $\frac{N}{2}$ times: this operation is linear in the input
 		\[\Theta(N;\]
@@ -467,7 +467,7 @@ If we could arrange from the start the input components in a order that resemble
 \item we write these $N/4$ size 4 DFTs in the array;
 \item we iterate the procedure untile the array holds 2 size $N/2$ DFTs, which we can combine using $N/2$ butterfly operations to obtain out final $N$ size DFT.
 \end{enumerate}
-Since we have to combine DFTs on every level of the tree, we must keep count of the levels ranging from 1 to $\log_2(N)$ (since this is still a radix-2 algorithm). \par Another question is to understand how to rearrange the input component to resemble the order on the levaes of the recursion tree. To do this, we firstly fill an array wtih the input component in the particular order that they appear in the leaves of the recursion graph. Let's examine the order in which the input components ends up.\begin{center}
+Since we have to combine DFTs on every level of the tree, we must keep count of the levels ranging from 1 to $\log_2(N)$ (since this is still a radix-2 algorithm). \par Another question is to understand how to rearrange the input component to resemble the order on the leaves of the recursion tree. To do this, we firstly fill an array with the input component in the particular order that they appear in the leaves of the recursion graph. Let's examine the order in which the input components ends up.\begin{center}
 \begin{tabular}{|c| c c c c c c c c|}
     \hline
     \rowcolor{red!50}
@@ -510,7 +510,7 @@ Let's now turn to an algorithm for the iterative FFT\footcite[][917]{introalgo}.
 	\end{algorithmic}
 \end{algorithm}
 We can see in lines 12 and 13 the usual butterfly operation, with $t$ being the oddDFT multiplied by the twiddle factor.
-What about the bit reversal? The algorithm is very simple\footcite[][918]{introalgo}, even though we will see that implementation in Python can be a bit more tricky, involving bitwise operations.
+What about the bit reversal? The algorithm is very simple\footcite[][918]{introalgo}, even though we will see that implementation in Python can be a bit more tricky, involving bit-wise operations.
 \begin{algorithm}[H]
 	\caption{Bit-Reversal}\label{bitrev}
 	\begin{algorithmic}[1]
@@ -525,7 +525,7 @@ What about the bit reversal? The algorithm is very simple\footcite[][918]{introa
 \end{algorithm}
 Let's turn, once again, to complexity analysis.
 \begin{complexity}
-	\begin{itemize}\item \textbf{Bit reversal function:} this function runs in $\Theta(N \log N)$ time, since the loop runs $N$ times to reverser an integer between $0$ and $N-1$ with  $\log N$ bits.
+	\begin{itemize}\item \textbf{Bit reversal function:} this function runs in $\Theta(N \log N)$ time, since the loop runs $N$ times to reverse an integer between $0$ and $N-1$ with  $\log N$ bits.
 		\item \textbf{Iterative FFT function:} 
 	\end{itemize}\begin{algorithmic}[1]
 	\Function{iterativeFFT}{x}
